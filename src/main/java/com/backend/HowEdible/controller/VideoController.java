@@ -12,15 +12,8 @@ import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-// new imports for pagination 
-//import org.springframework.web.bind.annotation.*;
 import java.sql.Timestamp;
 import java.util.List;
-
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.PageRequest;
-
-
 import java.io.IOException;
 
 @RestController
@@ -29,6 +22,10 @@ public class VideoController {
 
     @Autowired
     private VideoService videoService;
+
+    public VideoController(VideoService videoService) {
+        this.videoService = videoService;
+    }
 
     @PostMapping("/upload")
     public ResponseEntity<?> uploadVideo(@RequestParam Long userId, @RequestParam MultipartFile file) {
@@ -42,7 +39,6 @@ public class VideoController {
         }
     }
 
-
     @GetMapping("/user/{userId}")
     public ResponseEntity<List<Video>> getVideosByUser(@PathVariable Long userId) {
         try {
@@ -53,39 +49,39 @@ public class VideoController {
         }
     }
 
-//    @GetMapping("/stream/{videoId}")
-//    public ResponseEntity<ByteArrayResource> streamVideo(@PathVariable Long videoId) {
-//        Video video = videoService.findById(videoId); // this is to fetch the video metadata
-//        if (video == null) {
-//            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-//        }
-//
-//        ByteArrayResource resource = new ByteArrayResource(video.getContent());
-//        return ResponseEntity.ok()
-//                .contentType(MediaType.APPLICATION_OCTET_STREAM)
-//                .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + video.getFileName() + "\"")
-//                .body(resource);
-//    }
-//    
-//    ////////////////////////
-//    // new im
-//    public VideoController(VideoService videoService) {
-//        this.videoService = videoService;
-//    }
-//    
-//    // creating a new end-point for pagination // these query parameters
-//    @GetMapping("/paginated")
-//    public List<Video> getPaginatedVideos(
-//            @RequestParam(value = "cursor", required = false) Timestamp cursor,
-//            @RequestParam(value = "limit", defaultValue = "10") int limit) {
-//        return videoService.getPaginatedVideos(cursor, limit);
-//    }
-//    
-//    
-//    // this is the new api get end-point
-//    @GetMapping
-//    public List<Video> getVideos(@RequestParam(required = false) Long lastVideoId,
-//                                 @RequestParam(defaultValue = "10") int pageSize) {
-//        return videoService.getVideosWithPagination(lastVideoId, pageSize);
-//    }
+    @GetMapping("/stream/{videoId}")
+    public ResponseEntity<ByteArrayResource> streamVideo(@PathVariable Long videoId) {
+        Video video = videoService.findById(videoId);
+        if (video == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
+
+        ByteArrayResource resource = new ByteArrayResource(video.getContent());
+        return ResponseEntity.ok()
+                .contentType(MediaType.APPLICATION_OCTET_STREAM)
+                .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + video.getFileName() + "\"")
+                .body(resource);
+    }
+
+    @GetMapping("/feed")
+    public List<Video> getPaginatedVideos(
+        @RequestParam(required = false) Timestamp cursor,
+        @RequestParam(defaultValue = "10") int limit) {
+        return videoService.getPaginatedVideos(cursor, limit);
+    }
+    
+    @GetMapping("/videos")
+    public List<Video> getAllVideos() {
+        List<Video> videos = videoService.getAllVideos();
+        
+        // Generate proper URLs before returning videos
+        videos.forEach(video -> {
+            String generatedUrl = "http://localhost:8080/api/videos/" + video.getId();
+            video.setUrl(generatedUrl);
+        });
+
+        return videos;
+    }
+
+    
 }

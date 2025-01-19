@@ -1,8 +1,7 @@
 package com.backend.HowEdible.model;
 
 import jakarta.persistence.*;
-
-import java.security.Timestamp;
+import java.sql.Timestamp;
 import java.util.Objects;
 
 @Entity
@@ -32,12 +31,13 @@ public class Video {
     @Lob
     @Column(name = "content", columnDefinition = "LONGBLOB")
     private byte[] content;
-    
-    
+
     @Column(name = "upload_date")
     @Temporal(TemporalType.TIMESTAMP)
     private Timestamp uploadDate;
 
+    // Default Constructor
+    public Video() {}
 
     // Getters and Setters
     public Long getId() {
@@ -65,7 +65,11 @@ public class Video {
     }
 
     public String getUrl() {
-        return url;
+        // Ensure URL is not null and dynamically generate if missing
+        if (this.url == null || this.url.isEmpty()) {
+            return "/videos/" + this.id;  // Assuming you have a `/videos/{id}` API endpoint
+        }
+        return this.url;
     }
 
     public void setUrl(String url) {
@@ -94,6 +98,14 @@ public class Video {
 
     public void setContent(byte[] content) {
         this.content = content;
+    }
+
+    public Timestamp getUploadDate() {
+        return uploadDate;
+    }
+
+    public void setUploadDate(Timestamp uploadDate) {
+        this.uploadDate = uploadDate;
     }
 
     // Equals and HashCode for consistency and uniqueness
