@@ -19,7 +19,7 @@ public class Video {
     @Column(name = "filename", nullable = false)
     private String fileName;
 
-    @Column(name = "url", nullable = false)
+    @Column(name = "url")
     private String url;
 
     @Column(name = "resolution")
@@ -36,10 +36,8 @@ public class Video {
     @Temporal(TemporalType.TIMESTAMP)
     private Timestamp uploadDate;
 
-    // Default Constructor
     public Video() {}
 
-    // Getters and Setters
     public Long getId() {
         return id;
     }
@@ -65,9 +63,8 @@ public class Video {
     }
 
     public String getUrl() {
-        // Ensure URL is not null and dynamically generate if missing
         if (this.url == null || this.url.isEmpty()) {
-            return "/videos/" + this.id;  // Assuming you have a `/videos/{id}` API endpoint
+            return "http://localhost:8080/api/videos/stream/" + this.id;
         }
         return this.url;
     }
@@ -106,19 +103,5 @@ public class Video {
 
     public void setUploadDate(Timestamp uploadDate) {
         this.uploadDate = uploadDate;
-    }
-
-    // Equals and HashCode for consistency and uniqueness
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        Video video = (Video) o;
-        return Objects.equals(id, video.id);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(id);
     }
 }

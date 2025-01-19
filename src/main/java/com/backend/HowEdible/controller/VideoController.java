@@ -1,7 +1,10 @@
 package com.backend.HowEdible.controller;
 
+import com.backend.HowEdible.dto.VideoDTO;
 import com.backend.HowEdible.model.Video;
 import com.backend.HowEdible.service.VideoService;
+
+import jakarta.annotation.Resource;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ByteArrayResource;
@@ -11,10 +14,13 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 
 import java.sql.Timestamp;
 import java.util.List;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 
 @RestController
 @RequestMapping("/api/videos")
@@ -50,18 +56,29 @@ public class VideoController {
     }
 
     @GetMapping("/stream/{videoId}")
-    public ResponseEntity<ByteArrayResource> streamVideo(@PathVariable Long videoId) {
+    public ResponseEntity<StreamingResponseBody> streamVideo(@PathVariable Long videoId) {
         Video video = videoService.findById(videoId);
         if (video == null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
 
-        ByteArrayResource resource = new ByteArrayResource(video.getContent());
+        InputStream videoStream = new ByteArrayInputStream(video.getContent());
+
         return ResponseEntity.ok()
-                .contentType(MediaType.APPLICATION_OCTET_STREAM)
-                .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + video.getFileName() + "\"")
-                .body(resource);
+                .contentType(MediaType.valueOf("video/mp4"))
+                .header(HttpHeaders.CONTENT_DISPOSITION, "inline") // ✅ Force video playback
+                .body(outputStream -> {
+                    byte[] buffer = new byte[1024];
+                    int bytesRead;
+                    while ((bytesRead = videoStream.read(buffer)) != -1) {
+                        outputStream.write(buffer, 0, bytesRead);
+                        outputStream.flush();
+                    }
+                });
     }
+
+
+
 
     @GetMapping("/feed")
     public List<Video> getPaginatedVideos(
@@ -70,18 +87,32 @@ public class VideoController {
         return videoService.getPaginatedVideos(cursor, limit);
     }
     
+//    @GetMapping
+//    public ResponseEntity<List<Video>> getAllVideos() {
+//        List<Video> videos = videoService.getAllVideos();
+//
+//        if (videos.isEmpty()) {
+//            return ResponseEntity.noContent().build();
+//        }
+//
+//        return ResponseEntity.ok(videos);
+//    }
+    
     @GetMapping("/videos")
     public List<Video> getAllVideos() {
         List<Video> videos = videoService.getAllVideos();
         
         // Generate proper URLs before returning videos
         videos.forEach(video -> {
-            String generatedUrl = "http://localhost:8080/api/videos/" + video.getId();
+            String generatedUrl = "http://localhost:8080/api/videos/stream/" + video.getId();
             video.setUrl(generatedUrl);
         });
 
         return videos;
     }
+    @GetMapping
+    public ResponseEntity<List<Video>> getAllVideos1() {
+        return ResponseEntity.ok(videoService.getAllVideos());
+    }
 
-    
 }

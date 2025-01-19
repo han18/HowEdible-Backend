@@ -1,6 +1,7 @@
 package com.backend.HowEdible.service;
 
 import com.backend.HowEdible.model.Video;
+import com.backend.HowEdible.dto.VideoDTO;
 import com.backend.HowEdible.model.User;
 import com.backend.HowEdible.repository.VideoRepository;
 import com.backend.HowEdible.repository.UserRepository;
@@ -14,6 +15,7 @@ import org.springframework.data.domain.Sort;
 
 import java.sql.Timestamp;
 import java.util.List;
+import java.util.stream.Collectors;
 import java.io.IOException;
 
 @Service
@@ -39,13 +41,18 @@ public class VideoService {
         video.setContent(file.getBytes());
         video.setAspectRatio("16:9");
         video.setResolution("1920x1080");
-
         video.setUploadDate(new Timestamp(System.currentTimeMillis())); // Set upload timestamp
-        String generatedUrl = "/videos/" + System.currentTimeMillis() + "_" + file.getOriginalFilename();
+
+        // Save video first to get the ID
+        video = videoRepository.save(video);
+
+        // ✅ Correct URL format using /stream/{videoId}
+        String generatedUrl = "http://localhost:8080/api/videos/stream/" + video.getId();
         video.setUrl(generatedUrl);
 
-        return videoRepository.save(video);
+        return videoRepository.save(video); // Save updated video with the URL
     }
+
 
     public List<Video> getAllVideos(Long userId) {
         return videoRepository.findByUserId(userId);
@@ -55,9 +62,6 @@ public class VideoService {
         return videoRepository.findById(videoId).orElse(null);
     }
 
-    /**
-     * Fetch paginated videos using cursor-based pagination.
-     */
     public List<Video> getPaginatedVideos(Timestamp cursor, int limit) {
         Pageable pageable = PageRequest.of(0, limit, Sort.by(Sort.Direction.DESC, "uploadDate"));
         
@@ -79,16 +83,34 @@ public class VideoService {
         }
     }
     
+//    public List<Video> getAllVideos() {
+//        List<Video> videos = videoRepository.findAll();
+//
+//        // Generate URLs before returning
+//        videos.forEach(video -> {
+//            String generatedUrl = "http://localhost:8080/api/videos/stream/" + video.getId();
+//            video.setUrl(generatedUrl);
+//        });
+//
+//        return videos; // ✅ This ensures only videos are returned, NOT users
+//    }
+    
     public List<Video> getAllVideos() {
         List<Video> videos = videoRepository.findAll();
 
-        // Generate URLs before returning
+        // Ensure URLs are set correctly
         videos.forEach(video -> {
-            String generatedUrl = "http://localhost:8080/api/videos/" + video.getId();
-            video.setUrl(generatedUrl);
+            if (video.getUrl() == null || video.getUrl().isEmpty()) {
+                video.setUrl("http://localhost:8080/api/videos/stream/" + video.getId());
+            }
         });
 
-        return videos; // ✅ This ensures only videos are returned, NOT users
+        return videos;
+    }
+
+    public List<VideoDTO> getAllVideos1() {
+        List<Video> videos = videoRepository.findAll();
+        return videos.stream().map(VideoDTO::new).collect(Collectors.toList());
     }
 
 }
