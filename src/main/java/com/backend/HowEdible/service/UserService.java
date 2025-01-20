@@ -27,9 +27,13 @@ public class UserService {
         return userRepository.save(user);
     }
 
-    // Find a user by their username
+    // Find a user by their username / old code before adding the cast because findBYUsername had an error
+//    public User findByUsername(String username) {
+//        return userRepository.findByUsername(username); // Retrieve user by username
+//    }
+    
     public User findByUsername(String username) {
-        return userRepository.findByUsername(username); // Retrieve user by username
+        return ((UserService) userRepository).findByUsername(username); // Retrieve user by username
     }
 
     // Verify the user's password

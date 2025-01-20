@@ -4,10 +4,7 @@ import com.backend.HowEdible.dto.VideoDTO;
 import com.backend.HowEdible.model.Video;
 import com.backend.HowEdible.service.VideoService;
 
-import jakarta.annotation.Resource;
-
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.ByteArrayResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -37,7 +34,7 @@ public class VideoController {
     public ResponseEntity<?> uploadVideo(@RequestParam Long userId, @RequestParam MultipartFile file) {
         try {
             Video uploadedVideo = videoService.uploadVideo(userId, file);
-            return ResponseEntity.ok(uploadedVideo);
+            return ResponseEntity.ok(new VideoDTO(uploadedVideo)); // ✅ Return VideoDTO instead of Video
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         } catch (IOException e) {
@@ -46,9 +43,9 @@ public class VideoController {
     }
 
     @GetMapping("/user/{userId}")
-    public ResponseEntity<List<Video>> getVideosByUser(@PathVariable Long userId) {
+    public ResponseEntity<List<VideoDTO>> getVideosByUser(@PathVariable Long userId) {
         try {
-            List<Video> videos = videoService.getAllVideos(userId);
+            List<VideoDTO> videos = videoService.getAllVideos();
             return ResponseEntity.ok(videos);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
@@ -66,7 +63,7 @@ public class VideoController {
 
         return ResponseEntity.ok()
                 .contentType(MediaType.valueOf("video/mp4"))
-                .header(HttpHeaders.CONTENT_DISPOSITION, "inline") // ✅ Force video playback
+                .header(HttpHeaders.CONTENT_DISPOSITION, "inline")
                 .body(outputStream -> {
                     byte[] buffer = new byte[1024];
                     int bytesRead;
@@ -77,42 +74,15 @@ public class VideoController {
                 });
     }
 
-
-
-
     @GetMapping("/feed")
-    public List<Video> getPaginatedVideos(
+    public ResponseEntity<List<VideoDTO>> getPaginatedVideos(
         @RequestParam(required = false) Timestamp cursor,
         @RequestParam(defaultValue = "10") int limit) {
-        return videoService.getPaginatedVideos(cursor, limit);
+        return ResponseEntity.ok(videoService.getPaginatedVideos(cursor, limit));
     }
-    
-//    @GetMapping
-//    public ResponseEntity<List<Video>> getAllVideos() {
-//        List<Video> videos = videoService.getAllVideos();
-//
-//        if (videos.isEmpty()) {
-//            return ResponseEntity.noContent().build();
-//        }
-//
-//        return ResponseEntity.ok(videos);
-//    }
-    
-    @GetMapping("/videos")
-    public List<Video> getAllVideos() {
-        List<Video> videos = videoService.getAllVideos();
-        
-        // Generate proper URLs before returning videos
-        videos.forEach(video -> {
-            String generatedUrl = "http://localhost:8080/api/videos/stream/" + video.getId();
-            video.setUrl(generatedUrl);
-        });
 
-        return videos;
-    }
-    @GetMapping
-    public ResponseEntity<List<Video>> getAllVideos1() {
+    @GetMapping("/videos")
+    public ResponseEntity<List<VideoDTO>> getAllVideos() {
         return ResponseEntity.ok(videoService.getAllVideos());
     }
-
 }

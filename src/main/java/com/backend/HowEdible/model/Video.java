@@ -2,7 +2,7 @@ package com.backend.HowEdible.model;
 
 import jakarta.persistence.*;
 import java.sql.Timestamp;
-import java.util.Objects;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 
 @Entity
 @Table(name = "videos")
@@ -12,12 +12,16 @@ public class Video {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @JsonBackReference
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
     @Column(name = "filename", nullable = false)
     private String fileName;
+
+//    @Column(name = "title", nullable = false)  // ✅ Added title field
+//    private String title; 
 
     @Column(name = "url")
     private String url;
@@ -35,6 +39,10 @@ public class Video {
     @Column(name = "upload_date")
     @Temporal(TemporalType.TIMESTAMP)
     private Timestamp uploadDate;
+    
+    @Column(nullable = false)
+    private String title = "Untitled Video"; // ✅ Default title
+
 
     public Video() {}
 
@@ -103,5 +111,13 @@ public class Video {
 
     public void setUploadDate(Timestamp uploadDate) {
         this.uploadDate = uploadDate;
+    }
+
+    public String getTitle() {
+        return this.title;  // ✅ Fixed infinite recursion
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
     }
 }

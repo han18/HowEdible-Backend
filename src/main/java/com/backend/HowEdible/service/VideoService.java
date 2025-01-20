@@ -31,7 +31,7 @@ public class VideoService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("User not found"));
 
-        if (file.getSize() > 100 * 1024 * 1024) { 
+        if (file.getSize() > 100 * 1024 * 1024) {
             throw new IllegalArgumentException("File size exceeds the 100MB limit");
         }
 
@@ -41,76 +41,44 @@ public class VideoService {
         video.setContent(file.getBytes());
         video.setAspectRatio("16:9");
         video.setResolution("1920x1080");
-        video.setUploadDate(new Timestamp(System.currentTimeMillis())); // Set upload timestamp
+        video.setUploadDate(new Timestamp(System.currentTimeMillis()));
 
-        // Save video first to get the ID
-        video = videoRepository.save(video);
+        // 🛑 **Set a temporary URL to avoid the SQLIntegrityConstraintViolationException**
+        video.setUrl("PENDING");
 
-        // ✅ Correct URL format using /stream/{videoId}
-        String generatedUrl = "http://localhost:8080/api/videos/stream/" + video.getId();
-        video.setUrl(generatedUrl);
+        // ✅ First save the video to generate an ID
+        Video savedVideo = videoRepository.save(video);
 
-        return videoRepository.save(video); // Save updated video with the URL
+        // ✅ Now update the URL with the actual video ID
+        String generatedUrl = "http://localhost:8080/api/videos/stream/" + savedVideo.getId();
+        savedVideo.setUrl(generatedUrl);
+
+        // ✅ Save again with the correct URL
+        return videoRepository.save(savedVideo);
     }
 
 
-    public List<Video> getAllVideos(Long userId) {
-        return videoRepository.findByUserId(userId);
+
+    public List<VideoDTO> getAllVideos() {
+        return videoRepository.findAll().stream()
+                .map(VideoDTO::new)
+                .collect(Collectors.toList());
     }
 
     public Video findById(Long videoId) {
         return videoRepository.findById(videoId).orElse(null);
     }
 
-    public List<Video> getPaginatedVideos(Timestamp cursor, int limit) {
+    public List<VideoDTO> getPaginatedVideos(Timestamp cursor, int limit) {
         Pageable pageable = PageRequest.of(0, limit, Sort.by(Sort.Direction.DESC, "uploadDate"));
-        
+
+        List<Video> videos;
         if (cursor == null) {
-            return videoRepository.findTopByOrderByUploadDateDesc(pageable);
+            videos = videoRepository.findTopByOrderByUploadDateDesc(pageable);
         } else {
-            return videoRepository.findByUploadDateBeforeOrderByUploadDateDesc(cursor, pageable);
+            videos = videoRepository.findByUploadDateBeforeOrderByUploadDateDesc(cursor, pageable);
         }
-    }
 
-    public List<Video> getVideosWithPagination(Long lastVideoId, int pageSize) {
-        Pageable pageable = PageRequest.of(0, pageSize, Sort.by(Sort.Direction.DESC, "id"));
-
-        if (lastVideoId == null || lastVideoId <= 0) {
-            return videoRepository.findAll(pageable).getContent();
-        } else {
-            Page<Video> videoPage = videoRepository.findByIdLessThanOrderByIdDesc(lastVideoId, pageable);
-            return videoPage.getContent();
-        }
-    }
-    
-//    public List<Video> getAllVideos() {
-//        List<Video> videos = videoRepository.findAll();
-//
-//        // Generate URLs before returning
-//        videos.forEach(video -> {
-//            String generatedUrl = "http://localhost:8080/api/videos/stream/" + video.getId();
-//            video.setUrl(generatedUrl);
-//        });
-//
-//        return videos; // ✅ This ensures only videos are returned, NOT users
-//    }
-    
-    public List<Video> getAllVideos() {
-        List<Video> videos = videoRepository.findAll();
-
-        // Ensure URLs are set correctly
-        videos.forEach(video -> {
-            if (video.getUrl() == null || video.getUrl().isEmpty()) {
-                video.setUrl("http://localhost:8080/api/videos/stream/" + video.getId());
-            }
-        });
-
-        return videos;
-    }
-
-    public List<VideoDTO> getAllVideos1() {
-        List<Video> videos = videoRepository.findAll();
         return videos.stream().map(VideoDTO::new).collect(Collectors.toList());
     }
-
 }

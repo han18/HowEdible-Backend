@@ -1,17 +1,17 @@
 package com.backend.HowEdible.dto;
 
 import java.sql.Timestamp;
-import java.time.LocalDateTime;
 
 import com.backend.HowEdible.model.Video;
 
 public class VideoDTO {
     private Long id;
     private String fileName;
-    private String url;  // ✅ Add URL field
+    private String url;
     private String resolution;
     private String aspectRatio;
-    private Timestamp uploadDate; // remember I changed it from loacalDateTime to Time stamp
+    private Timestamp uploadDate;
+    private String title;
 
     public VideoDTO(Video video) {
         this.id = video.getId();
@@ -20,6 +20,15 @@ public class VideoDTO {
         this.resolution = video.getResolution();
         this.aspectRatio = video.getAspectRatio();
         this.uploadDate = video.getUploadDate();
+        this.title = video.getTitle();
     }
-}
 
+    // Getters and Setters
+    public Long getId() { return id; }
+    public String getFileName() { return fileName; }
+    public String getUrl() { return url; }
+    public String getResolution() { return resolution; }
+    public String getAspectRatio() { return aspectRatio; }
+    public Timestamp getUploadDate() { return uploadDate; }
+    public String getTitle() { return title; }
+}
