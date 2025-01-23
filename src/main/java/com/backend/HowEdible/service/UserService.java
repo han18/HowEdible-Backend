@@ -2,42 +2,42 @@ package com.backend.HowEdible.service;
 
 import com.backend.HowEdible.model.User;
 import com.backend.HowEdible.repository.UserRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
 public class UserService {
+    private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
 
-    @Autowired
-    private UserRepository userRepository;
+    // ✅ Constructor Injection (Best Practice)
+    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
+        this.userRepository = userRepository;
+        this.passwordEncoder = passwordEncoder;
+    }
 
-    @Autowired
-    private PasswordEncoder passwordEncoder;
-
-    // Register a new user
+    // ✅ Register a new user
     public User registerUser(User user) {
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         return userRepository.save(user);
     }
 
-    // Save user details
-    public User save(User user) {
-        // Perform additional business logic here, if needed
-        return userRepository.save(user);
-    }
-
-    // Find a user by their username / old code before adding the cast because findBYUsername had an error
-//    public User findByUsername(String username) {
-//        return userRepository.findByUsername(username); // Retrieve user by username
-//    }
-    
+    // ✅ Find a user by username
     public User findByUsername(String username) {
-        return ((UserService) userRepository).findByUsername(username); // Retrieve user by username
+        return userRepository.findByUsername(username); // No incorrect cast
     }
 
-    // Verify the user's password
+    // ✅ Verify password
     public boolean verifyPassword(String rawPassword, String encodedPassword) {
         return passwordEncoder.matches(rawPassword, encodedPassword);
+    }
+
+    // ✅ Authenticate user
+    public User authenticate(String username, String password) {
+        User user = userRepository.findByUsername(username);
+        if (user != null && verifyPassword(password, user.getPassword())) {
+            return user;
+        }
+        return null;
     }
 }

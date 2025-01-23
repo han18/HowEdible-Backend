@@ -1,4 +1,3 @@
-
 package com.backend.HowEdible.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -42,12 +41,9 @@ public class User {
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
-    // 🚀 Prevents infinite recursion when serializing User object
     @JsonIgnore
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Video> videos;
-
-    // Getters and Setters
 
     public Long getId() {
         return id;
@@ -109,6 +105,7 @@ public class User {
         this.videos = videos;
     }
 }
+
 
 
 

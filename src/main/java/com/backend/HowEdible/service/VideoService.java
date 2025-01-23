@@ -5,10 +5,8 @@ import com.backend.HowEdible.dto.VideoDTO;
 import com.backend.HowEdible.model.User;
 import com.backend.HowEdible.repository.VideoRepository;
 import com.backend.HowEdible.repository.UserRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -21,13 +19,16 @@ import java.io.IOException;
 @Service
 public class VideoService {
 
-    @Autowired
-    private VideoRepository videoRepository;
+    private final VideoRepository videoRepository;
+    private final UserRepository userRepository;
 
-    @Autowired
-    private UserRepository userRepository;
+    // ✅ Constructor-based injection instead of field injection
+    public VideoService(VideoRepository videoRepository, UserRepository userRepository) {
+        this.videoRepository = videoRepository;
+        this.userRepository = userRepository;
+    }
 
-    public Video uploadVideo(Long userId, MultipartFile file) throws IOException {
+    public Video uploadVideo(Long userId, String title, MultipartFile file) throws IOException {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("User not found"));
 
@@ -37,13 +38,14 @@ public class VideoService {
 
         Video video = new Video();
         video.setUser(user);
+        video.setTitle(title); // ✅ Store the video title
         video.setFileName(file.getOriginalFilename());
         video.setContent(file.getBytes());
         video.setAspectRatio("16:9");
         video.setResolution("1920x1080");
         video.setUploadDate(new Timestamp(System.currentTimeMillis()));
 
-        // 🛑 **Set a temporary URL to avoid the SQLIntegrityConstraintViolationException**
+        // 🛑 **Set a temporary URL to avoid SQLIntegrityConstraintViolationException**
         video.setUrl("PENDING");
 
         // ✅ First save the video to generate an ID
@@ -56,8 +58,6 @@ public class VideoService {
         // ✅ Save again with the correct URL
         return videoRepository.save(savedVideo);
     }
-
-
 
     public List<VideoDTO> getAllVideos() {
         return videoRepository.findAll().stream()
@@ -81,5 +81,4 @@ public class VideoService {
 
         return videos.stream().map(VideoDTO::new).collect(Collectors.toList());
     }
-
 }

@@ -30,17 +30,34 @@ public class VideoController {
         this.videoService = videoService;
     }
 
+//    @PostMapping("/upload")
+//    public ResponseEntity<?> uploadVideo(@RequestParam Long userId, @RequestParam MultipartFile file) {
+//        try {
+//            Video uploadedVideo = videoService.uploadVideo(userId, file);
+//            return ResponseEntity.ok(new VideoDTO(uploadedVideo)); // ✅ Return VideoDTO instead of Video
+//        } catch (IllegalArgumentException e) {
+//            return ResponseEntity.badRequest().body(e.getMessage());
+//        } catch (IOException e) {
+//            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error processing the file");
+//        }
+//    }
+    
     @PostMapping("/upload")
-    public ResponseEntity<?> uploadVideo(@RequestParam Long userId, @RequestParam MultipartFile file) {
+    public ResponseEntity<?> uploadVideo(@RequestParam Long userId, 
+                                         @RequestParam String title, 
+                                         @RequestParam MultipartFile file) {
         try {
-            Video uploadedVideo = videoService.uploadVideo(userId, file);
-            return ResponseEntity.ok(new VideoDTO(uploadedVideo)); // ✅ Return VideoDTO instead of Video
+            Video uploadedVideo = videoService.uploadVideo(userId, title, file);
+            return ResponseEntity.ok(new VideoDTO(uploadedVideo)); // ✅ Return a proper response
         } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("{\"error\": \"" + e.getMessage() + "\"}");
         } catch (IOException e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error processing the file");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                                 .body("{\"error\": \"Error processing the file\"}");
         }
     }
+
+
 
     @GetMapping("/user/{userId}")
     public ResponseEntity<List<VideoDTO>> getVideosByUser(@PathVariable Long userId) {

@@ -1,5 +1,3 @@
-
-
 package com.backend.HowEdible.repository;
 
 import com.backend.HowEdible.model.User;
@@ -11,8 +9,10 @@ public interface UserRepository extends JpaRepository<User, Long> {
     
     @Query("SELECT u FROM User u LEFT JOIN FETCH u.videos WHERE u.id = :userId")
     User findByIdWithVideos(@Param("userId") Long userId);
+    
+    // ✅ Retrieve user by username
+    User findByUsername(String username);  
 }
-
 
 
 
