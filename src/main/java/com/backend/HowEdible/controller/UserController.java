@@ -43,11 +43,21 @@ public class UserController {
     @PostMapping("/login")
     public ResponseEntity<?> loginUser(@RequestBody UserLoginRequest loginRequest) {
         User user = userService.findByUsername(loginRequest.getUsername());
+        
         if (user == null || !userService.verifyPassword(loginRequest.getPassword(), user.getPassword())) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid username or password");
         }
-        return ResponseEntity.ok("Login successful");
+
+        // returning full user details with a success message // new code auth
+        Map<String, Object> response = new HashMap<>();
+        response.put("id", user.getId());
+        response.put("username", user.getUsername());
+        response.put("email", user.getEmail());
+        response.put("message", "Login successful");
+
+        return ResponseEntity.ok(response);
     }
+
 
     @GetMapping("/profile/{username}")
     public ResponseEntity<User> getUserProfile(@PathVariable String username) {
