@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.util.List;
 
 public interface VideoRepository extends JpaRepository<Video, Long> {
@@ -20,4 +21,15 @@ public interface VideoRepository extends JpaRepository<Video, Long> {
     List<Video> findTopByOrderByUploadDateDesc(Pageable pageable);
 
     Page<Video> findByIdLessThanOrderByIdDesc(Long lastVideoId, Pageable pageable);
+    
+    @Query("SELECT v FROM Video v WHERE v.uploadDate < :cursor ORDER BY v.uploadDate DESC")
+    List<Video> findVideos(@Param("cursor") LocalDateTime cursor, Pageable pageable);
+    
+    @Query("SELECT v FROM Video v WHERE v.uploadDate < :cursor ORDER BY v.uploadDate DESC")
+    List<Video> findTopNByUploadDateBeforeOrderByUploadDateDesc(@Param("cursor") Timestamp cursor, Pageable pageable);
+
+    @Query("SELECT v FROM Video v WHERE v.uploadDate < :cursor ORDER BY v.uploadDate DESC")
+    List<Video> findPaginatedVideos(@Param("cursor") Timestamp cursor, Pageable pageable);
+
+
 }

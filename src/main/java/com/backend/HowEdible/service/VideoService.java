@@ -73,12 +73,13 @@ public class VideoService {
         Pageable pageable = PageRequest.of(0, limit, Sort.by(Sort.Direction.DESC, "uploadDate"));
 
         List<Video> videos;
-        if (cursor == null) {
-            videos = videoRepository.findTopByOrderByUploadDateDesc(pageable);
+        if (cursor != null) {
+            videos = videoRepository.findPaginatedVideos(cursor, pageable);
         } else {
-            videos = videoRepository.findByUploadDateBeforeOrderByUploadDateDesc(cursor, pageable);
+            videos = videoRepository.findAll(pageable).getContent();
         }
 
         return videos.stream().map(VideoDTO::new).collect(Collectors.toList());
     }
+
 }

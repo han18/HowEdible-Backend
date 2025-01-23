@@ -76,10 +76,23 @@ public class VideoController {
 
     @GetMapping("/feed")
     public ResponseEntity<List<VideoDTO>> getPaginatedVideos(
-        @RequestParam(required = false) Timestamp cursor,
+        @RequestParam(required = false) String cursor,
         @RequestParam(defaultValue = "10") int limit) {
-        return ResponseEntity.ok(videoService.getPaginatedVideos(cursor, limit));
+    	
+    	System.out.println("Received cursor: " + cursor);
+        System.out.println("Fetching videos with limit: " + limit);
+        
+        Timestamp parsedCursor = null;
+        if (cursor != null && !cursor.isEmpty()) {
+            try {
+                parsedCursor = Timestamp.valueOf(cursor);
+            } catch (IllegalArgumentException e) {
+                return ResponseEntity.badRequest().body(null); // Invalid timestamp format
+            }
+        }
+        return ResponseEntity.ok(videoService.getPaginatedVideos(parsedCursor, limit));
     }
+
 
     @GetMapping("/videos")
     public ResponseEntity<List<VideoDTO>> getAllVideos() {
