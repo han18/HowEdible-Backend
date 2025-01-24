@@ -3,6 +3,7 @@ package com.backend.HowEdible.model;
 import jakarta.persistence.*;
 import java.sql.Timestamp;
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Entity
 @Table(name = "videos")
@@ -20,9 +21,6 @@ public class Video {
     @Column(name = "filename", nullable = false)
     private String fileName;
 
-//    @Column(name = "title", nullable = false)  // ✅ Added title field
-//    private String title; 
-
     @Column(name = "url")
     private String url;
 
@@ -34,6 +32,7 @@ public class Video {
 
     @Lob
     @Column(name = "content", columnDefinition = "LONGBLOB")
+    @JsonIgnore // ✅ Prevents "content" field from being included in API responses
     private byte[] content;
 
     @Column(name = "upload_date")
@@ -42,7 +41,6 @@ public class Video {
     
     @Column(nullable = false)
     private String title = "Untitled Video"; // ✅ Default title
-
 
     public Video() {}
 
@@ -97,14 +95,6 @@ public class Video {
         this.aspectRatio = aspectRatio;
     }
 
-    public byte[] getContent() {
-        return content;
-    }
-
-    public void setContent(byte[] content) {
-        this.content = content;
-    }
-
     public Timestamp getUploadDate() {
         return uploadDate;
     }
@@ -114,10 +104,19 @@ public class Video {
     }
 
     public String getTitle() {
-        return this.title;  // ✅ Fixed infinite recursion
+        return this.title;
     }
 
     public void setTitle(String title) {
         this.title = title;
+    }
+
+    // ✅ Re-added setContent method to fix compilation error
+    public byte[] getContent() {
+        return content;
+    }
+
+    public void setContent(byte[] content) {
+        this.content = content;
     }
 }

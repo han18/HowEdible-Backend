@@ -19,6 +19,9 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
+
+
+@CrossOrigin(origins = "http://localhost:3000") // to allow front end requests
 @RestController
 @RequestMapping("/api/videos")
 public class VideoController {
@@ -42,18 +45,32 @@ public class VideoController {
 //        }
 //    }
     
+    // new auth code for uploading videos
     @PostMapping("/upload")
-    public ResponseEntity<?> uploadVideo(@RequestParam Long userId, 
-                                         @RequestParam String title, 
-                                         @RequestParam MultipartFile file) {
+    public ResponseEntity<?> uploadVideo(
+            @RequestParam("userId") Long userId,
+            @RequestParam("title") String title,
+            @RequestParam("file") MultipartFile file) {
+        
+        System.out.println("Received Upload Request: userId=" + userId + ", title=" + title + ", file=" + file.getOriginalFilename());
+        
+        if (file.isEmpty()) {
+            return ResponseEntity.badRequest().body("File is required.");
+        }
+
+        if (title == null || title.trim().isEmpty()) {
+            return ResponseEntity.badRequest().body("Title is required.");
+        }
+
+        if (userId == null) {
+            return ResponseEntity.badRequest().body("User ID is required.");
+        }
+
         try {
-            Video uploadedVideo = videoService.uploadVideo(userId, title, file);
-            return ResponseEntity.ok(new VideoDTO(uploadedVideo)); // ✅ Return a proper response
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("{\"error\": \"" + e.getMessage() + "\"}");
-        } catch (IOException e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                                 .body("{\"error\": \"Error processing the file\"}");
+            Video savedVideo = videoService.uploadVideo(userId, title, file);
+            return ResponseEntity.ok(savedVideo);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error uploading video: " + e.getMessage());
         }
     }
 
@@ -104,7 +121,7 @@ public class VideoController {
             try {
                 parsedCursor = Timestamp.valueOf(cursor);
             } catch (IllegalArgumentException e) {
-                return ResponseEntity.badRequest().body(null); // Invalid timestamp format
+                return ResponseEntity.badRequest().body(null); // Invalid time stamp format
             }
         }
         return ResponseEntity.ok(videoService.getPaginatedVideos(parsedCursor, limit));
