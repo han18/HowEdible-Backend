@@ -32,7 +32,7 @@ public class Video {
 
     @Lob
     @Column(name = "content", columnDefinition = "LONGBLOB")
-    @JsonIgnore // ✅ Prevents "content" field from being included in API responses
+    @JsonIgnore // this removes the content field from being included in api responses
     private byte[] content;
 
     @Column(name = "upload_date")
@@ -40,7 +40,7 @@ public class Video {
     private Timestamp uploadDate;
     
     @Column(nullable = false)
-    private String title = "Untitled Video"; // ✅ Default title
+    private String title = "Untitled Video"; // the default title
 
     public Video() {}
 
@@ -111,7 +111,7 @@ public class Video {
         this.title = title;
     }
 
-    // ✅ Re-added setContent method to fix compilation error
+    // re added setContent method to fix compilation error
     public byte[] getContent() {
         return content;
     }
