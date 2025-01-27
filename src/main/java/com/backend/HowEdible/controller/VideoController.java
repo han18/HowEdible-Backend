@@ -2,6 +2,7 @@ package com.backend.HowEdible.controller;
 
 import com.backend.HowEdible.dto.VideoDTO;
 import com.backend.HowEdible.model.Video;
+import com.backend.HowEdible.repository.VideoRepository;
 import com.backend.HowEdible.service.VideoService;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,6 +16,7 @@ import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBo
 
 import java.sql.Timestamp;
 import java.util.List;
+import java.util.stream.Collectors;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -28,10 +30,15 @@ public class VideoController {
 
     @Autowired
     private VideoService videoService;
+    private final VideoRepository videoRepository; // ✅ Declare here
 
-    public VideoController(VideoService videoService) {
+    // adding both dependencies for better readability
+    @Autowired
+    public VideoController(VideoService videoService, VideoRepository videoRepository) {
         this.videoService = videoService;
+        this.videoRepository = videoRepository;
     }
+    
 
 //    @PostMapping("/upload")
 //    public ResponseEntity<?> uploadVideo(@RequestParam Long userId, @RequestParam MultipartFile file) {
@@ -128,8 +135,24 @@ public class VideoController {
     }
 
 
+    // this is the old mapping before adding the user filed
+//    @GetMapping("/videos")
+//    public ResponseEntity<List<VideoDTO>> getAllVideos() {
+//        return ResponseEntity.ok(videoService.getAllVideos());
+//    }
+    
+    // the 3 blocks of code are part of the user id filed that will be associated with the video 
+//    @GetMapping("/videos")
+//    public List<VideoDTO> getAllVideos() {
+//        List<Video> videos = videoRepository.findAll();
+//        return videos.stream().map(VideoDTO::new).collect(Collectors.toList());
+//    }
+    
+    // this was added according to the video and its user
     @GetMapping("/videos")
     public ResponseEntity<List<VideoDTO>> getAllVideos() {
-        return ResponseEntity.ok(videoService.getAllVideos());
+        List<VideoDTO> videos = videoService.getAllVideos();
+        return ResponseEntity.ok(videos);
     }
 }
+

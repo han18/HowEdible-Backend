@@ -30,6 +30,10 @@ public interface VideoRepository extends JpaRepository<Video, Long> {
 
     @Query("SELECT v FROM Video v WHERE v.uploadDate < :cursor ORDER BY v.uploadDate DESC")
     List<Video> findPaginatedVideos(@Param("cursor") Timestamp cursor, Pageable pageable);
+    
+    // to fetch user data with videos
+    @Query("SELECT v FROM Video v JOIN FETCH v.user") 
+    List<Video> findAllVideosWithUser();
 
 
 }

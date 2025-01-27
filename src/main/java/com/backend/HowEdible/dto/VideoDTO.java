@@ -12,7 +12,10 @@ public class VideoDTO {
     private String aspectRatio;
     private Timestamp uploadDate;
     private String title;
+    private String username; // including username as a foreign ID
+    private Long userId;
 
+    
     public VideoDTO(Video video) {
         this.id = video.getId();
         this.fileName = video.getFileName();
@@ -21,6 +24,11 @@ public class VideoDTO {
         this.aspectRatio = video.getAspectRatio();
         this.uploadDate = video.getUploadDate();
         this.title = video.getTitle();
+        this.username = video.getUser().getUsername(); // getting the username
+        this.userId = video.getUser() != null ? video.getUser().getId() : null; // ✅ Ensures no null error
+
+       
+
     }
 
     // Getters and Setters
@@ -31,4 +39,6 @@ public class VideoDTO {
     public String getAspectRatio() { return aspectRatio; }
     public Timestamp getUploadDate() { return uploadDate; }
     public String getTitle() { return title; }
+    public Long getUserId() { return userId; }
+    public String getUsername() { return username; }
 }

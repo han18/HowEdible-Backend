@@ -59,11 +59,12 @@ public class VideoService {
         return videoRepository.save(savedVideo);
     }
 
-    public List<VideoDTO> getAllVideos() {
-        return videoRepository.findAll().stream()
-                .map(VideoDTO::new)
-                .collect(Collectors.toList());
-    }
+    // I added the updated one in the bottom
+//    public List<VideoDTO> getAllVideos() {
+//        return videoRepository.findAll().stream()
+//                .map(VideoDTO::new)
+//                .collect(Collectors.toList());
+//    }
 
     public Video findById(Long videoId) {
         return videoRepository.findById(videoId).orElse(null);
@@ -79,6 +80,11 @@ public class VideoService {
             videos = videoRepository.findAll(pageable).getContent();
         }
 
+        return videos.stream().map(VideoDTO::new).collect(Collectors.toList());
+    }
+    
+    public List<VideoDTO> getAllVideos() {
+        List<Video> videos = videoRepository.findAllVideosWithUser(); // ✅ Fetch videos with users
         return videos.stream().map(VideoDTO::new).collect(Collectors.toList());
     }
 }

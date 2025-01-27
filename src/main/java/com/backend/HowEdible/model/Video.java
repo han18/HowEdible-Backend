@@ -41,7 +41,7 @@ public class Video {
     
     @Column(nullable = false)
     private String title = "Untitled Video"; // the default title
-
+    
     public Video() {}
 
     public Long getId() {
