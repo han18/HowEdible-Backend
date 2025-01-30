@@ -25,7 +25,7 @@ public class VideoDTO {
         this.uploadDate = video.getUploadDate();
         this.title = video.getTitle();
         this.username = video.getUser().getUsername(); // getting the username
-        this.userId = video.getUser() != null ? video.getUser().getId() : null; // ✅ Ensures no null error
+        this.userId = video.getUser() != null ? video.getUser().getId() : null; // Ensures no null error
 
        
 

@@ -154,5 +154,8 @@ public class VideoController {
         List<VideoDTO> videos = videoService.getAllVideos();
         return ResponseEntity.ok(videos);
     }
+    
+//    this code is added for connect the user to the video
+    
 }
 

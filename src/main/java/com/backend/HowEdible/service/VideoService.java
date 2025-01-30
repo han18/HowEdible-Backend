@@ -83,8 +83,16 @@ public class VideoService {
         return videos.stream().map(VideoDTO::new).collect(Collectors.toList());
     }
     
+    // this is the old code in 10/30/2025 to add
+//    public List<VideoDTO> getAllVideos() {
+//        List<Video> videos = videoRepository.findAllVideosWithUser(); // ✅ Fetch videos with users
+//        return videos.stream().map(VideoDTO::new).collect(Collectors.toList());
+//    }
+    
     public List<VideoDTO> getAllVideos() {
-        List<Video> videos = videoRepository.findAllVideosWithUser(); // ✅ Fetch videos with users
-        return videos.stream().map(VideoDTO::new).collect(Collectors.toList());
+        List<Video> videos = videoRepository.findAll();
+        return videos.stream()
+                     .map(VideoDTO::new) // ✅ Convert to DTO with username
+                     .collect(Collectors.toList());
     }
 }
