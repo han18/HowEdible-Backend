@@ -15,9 +15,6 @@ public class HowEdibleApplication {
 //		to check the server is running 
 		System.out.println("Server is running successfully ");
 		
-
-			
-
 	}
 
 }
