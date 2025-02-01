@@ -15,6 +15,7 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 
 import java.sql.Timestamp;
+import java.time.Instant;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.io.ByteArrayInputStream;
@@ -119,19 +120,22 @@ public class VideoController {
     public ResponseEntity<List<VideoDTO>> getPaginatedVideos(
         @RequestParam(required = false) String cursor,
         @RequestParam(defaultValue = "10") int limit) {
-    	
-    	System.out.println("Received cursor: " + cursor);
-        System.out.println("Fetching videos with limit: " + limit);
-        
+
+        System.out.println("📥 Received cursor: " + cursor);
+        System.out.println("🔍 Fetching videos with limit: " + limit);
+
         Timestamp parsedCursor = null;
         if (cursor != null && !cursor.isEmpty()) {
             try {
-                parsedCursor = Timestamp.valueOf(cursor);
-            } catch (IllegalArgumentException e) {
-                return ResponseEntity.badRequest().body(null); // Invalid time stamp format
+                Instant instant = Instant.parse(cursor); // ✅ Parse ISO 8601 timestamp
+                parsedCursor = Timestamp.from(instant);  // ✅ Convert Instant to Timestamp
+            } catch (Exception e) {
+                System.out.println("⚠️ Invalid cursor format: " + cursor);
+                return ResponseEntity.badRequest().body(null); 
             }
         }
-        return ResponseEntity.ok(videoService.getPaginatedVideos(parsedCursor, limit));
+
+        return ResponseEntity.ok(videoService.getPaginatedVideos(parsedCursor, limit)); // ✅ Now passes correct Timestamp
     }
 
 
@@ -156,6 +160,5 @@ public class VideoController {
     }
     
 //    this code is added for connect the user to the video
-    
 }
 
