@@ -1,7 +1,12 @@
 package com.backend.HowEdible.model;
+import com.backend.HowEdible.model.Comment;
 
 import jakarta.persistence.*;
+
+import java.util.List;
 import java.sql.Timestamp;
+import java.util.ArrayList;
+
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
@@ -42,6 +47,15 @@ public class Video {
     @Column(nullable = false)
     private String title = "Untitled Video"; // the default title
     
+    
+    // this is the comment filed in the video entity and it's a one to many relationship added 02/02/2025
+    // and also to delete comments when video is deleted 
+    @OneToMany(mappedBy = "video", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Comment> comments = new ArrayList<>();
+    
+    
+    // =================================================================== //
+    // from here down are the setters and getters
     public Video() {}
 
     public Long getId() {
@@ -118,5 +132,14 @@ public class Video {
 
     public void setContent(byte[] content) {
         this.content = content;
+    }
+    
+    // getters & setters for the comment filed
+    public List<Comment> getComments() {
+        return comments;
+    }
+
+    public void setComments(List<Comment> comments) {
+        this.comments = comments;
     }
 }
