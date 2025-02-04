@@ -22,7 +22,7 @@ public class VideoService {
     private final VideoRepository videoRepository;
     private final UserRepository userRepository;
 
-    // ✅ Constructor-based injection instead of field injection
+    // constructor-based injection instead of field injection
     public VideoService(VideoRepository videoRepository, UserRepository userRepository) {
         this.videoRepository = videoRepository;
         this.userRepository = userRepository;
@@ -38,24 +38,24 @@ public class VideoService {
 
         Video video = new Video();
         video.setUser(user);
-        video.setTitle(title); // ✅ Store the video title
+        video.setTitle(title); // storing the video title
         video.setFileName(file.getOriginalFilename());
         video.setContent(file.getBytes());
         video.setAspectRatio("16:9");
         video.setResolution("1920x1080");
         video.setUploadDate(new Timestamp(System.currentTimeMillis()));
 
-        // 🛑 **Set a temporary URL to avoid SQLIntegrityConstraintViolationException**
+        // setting a temporary URL to avoid SQLIntegrityConstraintViolationException**
         video.setUrl("PENDING");
 
-        // ✅ First save the video to generate an ID
+        // to first save the video to generate an ID
         Video savedVideo = videoRepository.save(video);
 
-        // ✅ Now update the URL with the actual video ID
+        // now update the URL with the actual video ID
         String generatedUrl = "http://localhost:8080/api/videos/stream/" + savedVideo.getId();
         savedVideo.setUrl(generatedUrl);
 
-        // ✅ Save again with the correct URL
+        // saving again with the correct URL
         return videoRepository.save(savedVideo);
     }
 
@@ -85,14 +85,14 @@ public class VideoService {
     
     // this is the old code in 10/30/2025 to add
 //    public List<VideoDTO> getAllVideos() {
-//        List<Video> videos = videoRepository.findAllVideosWithUser(); // ✅ Fetch videos with users
+//        List<Video> videos = videoRepository.findAllVideosWithUser(); // fetch videos with users
 //        return videos.stream().map(VideoDTO::new).collect(Collectors.toList());
 //    }
     
     public List<VideoDTO> getAllVideos() {
         List<Video> videos = videoRepository.findAll();
         return videos.stream()
-                     .map(VideoDTO::new) // ✅ Convert to DTO with username
+                     .map(VideoDTO::new) // convert to DTO with user name
                      .collect(Collectors.toList());
     }
     
