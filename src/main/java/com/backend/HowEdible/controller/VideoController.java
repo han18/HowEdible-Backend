@@ -31,7 +31,7 @@ public class VideoController {
 
     @Autowired
     private VideoService videoService;
-    private final VideoRepository videoRepository; // ✅ Declare here
+    private final VideoRepository videoRepository; // declare here
 
     // adding both dependencies for better readability
     @Autowired
@@ -45,7 +45,7 @@ public class VideoController {
 //    public ResponseEntity<?> uploadVideo(@RequestParam Long userId, @RequestParam MultipartFile file) {
 //        try {
 //            Video uploadedVideo = videoService.uploadVideo(userId, file);
-//            return ResponseEntity.ok(new VideoDTO(uploadedVideo)); // ✅ Return VideoDTO instead of Video
+//            return ResponseEntity.ok(new VideoDTO(uploadedVideo)); // Return VideoDTO instead of Video
 //        } catch (IllegalArgumentException e) {
 //            return ResponseEntity.badRequest().body(e.getMessage());
 //        } catch (IOException e) {
@@ -121,21 +121,21 @@ public class VideoController {
         @RequestParam(required = false) String cursor,
         @RequestParam(defaultValue = "10") int limit) {
 
-        System.out.println("📥 Received cursor: " + cursor);
-        System.out.println("🔍 Fetching videos with limit: " + limit);
+        System.out.println("Received cursor: " + cursor);
+        System.out.println("Fetching videos with limit: " + limit);
 
         Timestamp parsedCursor = null;
         if (cursor != null && !cursor.isEmpty()) {
             try {
-                Instant instant = Instant.parse(cursor); // ✅ Parse ISO 8601 timestamp
-                parsedCursor = Timestamp.from(instant);  // ✅ Convert Instant to Timestamp
+                Instant instant = Instant.parse(cursor); // parse ISO 8601 timestamp
+                parsedCursor = Timestamp.from(instant);  // converting Instant to Timestamp
             } catch (Exception e) {
-                System.out.println("⚠️ Invalid cursor format: " + cursor);
+                System.out.println("Invalid cursor format: " + cursor);
                 return ResponseEntity.badRequest().body(null); 
             }
         }
 
-        return ResponseEntity.ok(videoService.getPaginatedVideos(parsedCursor, limit)); // ✅ Now passes correct Timestamp
+        return ResponseEntity.ok(videoService.getPaginatedVideos(parsedCursor, limit)); // now passes correct Timestamp
     }
 
 
