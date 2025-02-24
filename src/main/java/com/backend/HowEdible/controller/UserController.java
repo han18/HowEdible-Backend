@@ -26,6 +26,7 @@ public class UserController {
     @Autowired
     private UserRepository userRepository;
 
+    // this is to register a user 
     @PostMapping("/register")
     public ResponseEntity<Map<String, String>> registerUser(@Valid @RequestBody User user) {
         try {
@@ -40,6 +41,7 @@ public class UserController {
         }
     }
 
+    // this is is to login in the user 
     @PostMapping("/login")
     public ResponseEntity<?> loginUser(@RequestBody UserLoginRequest loginRequest) {
         User user = userService.findByUsername(loginRequest.getUsername());
@@ -58,7 +60,7 @@ public class UserController {
         return ResponseEntity.ok(response);
     }
 
-
+    // this is the user id to the profile page 
     @GetMapping("/profile/{username}")
     public ResponseEntity<User> getUserProfile(@PathVariable String username) {
         User user = userService.findByUsername(username);
@@ -68,6 +70,7 @@ public class UserController {
         return ResponseEntity.ok(user);
     }
 
+    	// the user's id to each video
     @GetMapping("/{userId}/videos")
     public ResponseEntity<User> getUserWithVideos(@PathVariable Long userId) {
         User user = userRepository.findByIdWithVideos(userId);
@@ -78,7 +81,7 @@ public class UserController {
     }
 
     @GetMapping
-    public List<User> getAllUsers() {  // ✅ Fixed return type
+    public List<User> getAllUsers() {  
         return userRepository.findAll();
     }
 }

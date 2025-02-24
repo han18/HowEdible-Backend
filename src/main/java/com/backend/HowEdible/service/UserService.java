@@ -24,7 +24,7 @@ public class UserService {
 
     // find a user by user name
     public User findByUsername(String username) {
-        return userRepository.findByUsername(username); // No incorrect cast
+        return userRepository.findByUsername(username); // no incorrect cast
     }
 
     // verify password
