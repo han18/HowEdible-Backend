@@ -14,7 +14,7 @@ public class HowEdibleApplication {
 		
 //		to check the server is running 
 		System.out.println("This project is the original version");
-		System.out.println("This project has a git and a github repositiory called Backend-HowEdible");
+		System.out.println("This project has a git and a github repositiory called HowEdible-Backend");
 
 		System.out.println("Server is running successfully ");
 
